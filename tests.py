@@ -3,9 +3,11 @@ import unittest
 from time import time as timer
 from statistics import mean
 
-from region_indexer import Point, RegionIndexer, Region
+from region_indexer import Point, RegionIndexer  # , Region
 
-TEST_SCALE = 200000
+from region_indexer_v3 import Regionv2 as Region, Map
+
+TEST_SCALE = 20
 
 
 def measure_time(func, reps=1):
@@ -19,6 +21,7 @@ def measure_time(func, reps=1):
 
 class TestCodeEfficiency(unittest.TestCase):
     def setUp(self):
+        print("#### Naive solution:")
         self.test_data = [tuple([-i, i**2, i*2, f'#{i}']) for i in range(TEST_SCALE)]
         self.start = timer()
         self.indexer = RegionIndexer()
@@ -41,7 +44,9 @@ class TestCodeEfficiency(unittest.TestCase):
         points = (Point(i, i) for i in range(TEST_SCALE))
 
         for point in points:
-            self.indexer.query(point.latitude, point.longitude)
+            results = list(self.indexer.query(point.latitude, point.longitude))
+            if results:
+                print('results: ', list(results))
 
         self.printTime(f'setup and filtering of {TEST_SCALE} queries',
                        average=True)
@@ -85,6 +90,14 @@ class TestCodeValidity(unittest.TestCase):
 
         for position in positions_not_in_region:
             self.assertNotIn(Point(*position), region)
+
+
+class TestEfficiencyV2(TestCodeEfficiency):
+    def setUp(self):
+        print("#### BST solution:")
+        self.test_data = [tuple([-i, i**2, i*2, f'#{i}']) for i in range(TEST_SCALE)]
+        self.start = timer()
+        self.indexer = Map(board_size=TEST_SCALE)
 
 if __name__ == '__main__':
     unittest.main()

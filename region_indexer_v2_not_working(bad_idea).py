@@ -62,4 +62,5 @@ class RegionIndexerv2:
 
     def batch_create(self, region_list):
         for region in region_list:
+            pass  # I give up
 
